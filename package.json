@@ -33,7 +33,7 @@
     "react-toastify": "^5.5.0",
     "react-toggle": "^4.1.1",
     "styled-components": "^5.1.0",
-    "validator": "^13.0.0"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
