@@ -52,7 +52,7 @@
     "@types/react-dom": "^16.9.6",
     "@types/react-toggle": "^4.0.3",
     "@types/styled-components": "^5.1.26",
-    "@types/validator": "^13.0.0",
+    "@types/validator": "^13.7.7",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
     "babel-loader": "^8.2.5",
