@@ -59,7 +59,7 @@
     "babel-preset-es2015": "^6.24.1",
     "core-js": "2",
     "css-loader": "^3.6.0",
-    "eslint": "^8.26.0",
+    "eslint": "^8.27.0",
     "eslint-config-standard-with-typescript": "^22.0.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-n": "^15.5.0",
