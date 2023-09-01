@@ -3156,10 +3156,10 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha512-ce5d3q03Ex0sy4R14722Rmt6MT07Ua+k4FwDfdcToYJcMKNtRVQvJ6JCAPdAmAnbRb6CsX6aYb9m96NGod9uTw==
 
-"@types/qrcode.react@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@types/qrcode.react/-/qrcode.react-1.0.2.tgz#f892432cc41b5dac52e3ca8873b717c8bfea6002"
-  integrity sha512-I9Oq5Cjlkgy3Tw7krCnCXLw2/zMhizkTere49OOcta23tkvH0xBTP0yInimTh0gstLRtb8Ki9NZVujE5UI6ffQ==
+"@types/qrcode.react@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@types/qrcode.react/-/qrcode.react-1.0.3.tgz#ce6852ebc1bbe4f43d1854eb19982cff30351025"
+  integrity sha512-gl7Ozf3BRQwfDUAU2xx7sWRBe/s7TqO0HAJukSQHbEVfQrFo5WKgZl0BHlN8u9W1DHXb4elgKRolHLZkgETXyA==
   dependencies:
     "@types/react" "*"
 
