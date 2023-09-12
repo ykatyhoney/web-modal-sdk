@@ -51,7 +51,7 @@
     "@types/react-datepicker": "^2.11.0",
     "@types/react-dom": "^16.9.6",
     "@types/react-toggle": "^4.0.3",
-    "@types/styled-components": "^5.1.26",
+    "@types/styled-components": "^5.1.27",
     "@types/validator": "^13.11.1",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
