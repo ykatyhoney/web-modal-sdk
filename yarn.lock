@@ -1831,10 +1831,10 @@
   resolved "https://registry.yarnpkg.com/@types/invariant/-/invariant-2.2.33.tgz#ec5eec29c63bf5e4ca164e9feb3ef7337cdcbadb"
   integrity sha512-/jUNmS8d4bCKdqslfxW6dg/9Gksfzxz67IYfqApHn+HvHlMVXwYv2zpTDnS/yaK9BB0i0GlBTaYci0EFE62Hmw==
 
-"@types/lodash@^4.17.7":
-  version "4.17.7"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.7.tgz#2f776bcb53adc9e13b2c0dfd493dfcbd7de43612"
-  integrity sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==
+"@types/lodash@^4.17.19":
+  version "4.17.19"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.19.tgz#de18c90b7891f00fed7c1273495a2f851efd99c4"
+  integrity sha512-NYqRyg/hIQrYPT9lbOeYc3kIRabJDn/k4qQHIXUpx88CBDww2fD15Sg5kbXlW86zm2XEW4g0QxkTI3/Kfkc7xQ==
 
 "@types/node@>=6":
   version "14.0.5"
