@@ -52,20 +52,20 @@ export const PageRewardDisplay: React.FC<IProps> = ({
   const settingsToFadeIn = { autoAlpha: 1 };
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    const tweenBottom = bottomRef.current 
+      ? TweenMax.fromTo(bottomRef.current, duration, settingsFromSlideIn, { ...settingsToSlideIn, paused: true })
+      : null;
 
-    const tweenBottom = TweenMax.fromTo(bottomRef.current || {}, duration, settingsFromSlideIn, { ...settingsToSlideIn, paused: true });
-
-    const captionHandler = () => {
-
+    const captionHandler = (): void => {
       let counter = 0;
       const chars = CAPTION.split('');
       const startAnimation = Math.round(chars.length / 2);
 
-      const interval = setInterval(() => {
-
+      intervalId = setInterval(() => {
         const char = chars[counter];
 
-        if (counter === startAnimation) {
+        if (counter === startAnimation && tweenBottom) {
           tweenBottom.play();
         }
 
@@ -73,73 +73,102 @@ export const PageRewardDisplay: React.FC<IProps> = ({
           setCaption(CAPTION.substring(0, counter));
           counter += 1;
         } else {
-          clearInterval(interval);
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
         }
       }, 50);
     };
 
-    if (!isHeaderLoaded) {
+    if (!isHeaderLoaded && headerRef.current) {
       setIsHeaderLoaded(true);
-      TweenMax.fromTo(headerRef.current || {}, duration, settingsFromSlideIn, { ...settingsToSlideIn, delay });
+      TweenMax.fromTo(headerRef.current, duration, settingsFromSlideIn, { ...settingsToSlideIn, delay });
     }
 
-    if (!isSubTitleLoaded) {
+    if (!isSubTitleLoaded && subTitleRef.current) {
       setIsSubTitleLoaded(true);
-      TweenMax.fromTo(subTitleRef.current || {}, duration, settingsFromSlideIn, { ...settingsToSlideIn, delay });
+      TweenMax.fromTo(subTitleRef.current, duration, settingsFromSlideIn, { ...settingsToSlideIn, delay });
     }
 
-    if (!isTitleLoaded) {
+    if (!isTitleLoaded && titleRef.current) {
       setIsTitleLoaded(true);
-      TweenMax.fromTo(titleRef.current || {}, duration, settingsFromFadeIn, {
+      TweenMax.fromTo(titleRef.current, duration, settingsFromFadeIn, {
         ...settingsToFadeIn,
         delay: delay + duration,
         onComplete: () => captionHandler()
       });
     }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      if (tweenBottom) {
+        tweenBottom.kill();
+      }
+    };
   }, [
     delay,
-    settingsFromFadeIn,
-    settingsFromSlideIn,
-    settingsToFadeIn,
-    settingsToSlideIn,
     isHeaderLoaded,
     isSubTitleLoaded,
-    isTitleLoaded
+    isTitleLoaded,
+    CAPTION,
+    duration
   ]);
 
   return (
     <>
-      {!!pageChange && <AnimationPageChange bgColor={bgColor} duration={changePageDuration} callback={() => setPage(pageChange)} />}
+      {pageChange !== undefined && (
+        <AnimationPageChange 
+          bgColor={bgColor} 
+          duration={changePageDuration} 
+          callback={() => setPage(pageChange)} 
+        />
+      )}
 
       <div className="page-content">
         <Header ref={headerRef}>
-          <img src={config.logo} alt="logo" />
+          <img src={config.logo} alt="Brand logo" />
         </Header>
         <Body>
           <SubTitle ref={subTitleRef}>Thanks for letting us know!</SubTitle>
           <Title ref={titleRef} theme={{ margin: '0 0 3.22px', color: config.theme.primaryColor }}>{config.reward.reward}</Title>
           <Caption ref={captionRef} theme={{ margin: '0 0 16.4px' }}>{caption}</Caption>
           <div ref={bottomRef}>
-            {!!config.showMap &&
+            {config.showMap && (
               <Banner theme={{ margin: '0 0 20.37px' }}>
-                <img src={'https://lucky-general.s3.us-east-2.amazonaws.com/sample/banner-page-1.png'} alt="banner" />
+                <img 
+                  src="https://lucky-general.s3.us-east-2.amazonaws.com/sample/banner-page-1.png" 
+                  alt="Promotional banner" 
+                />
               </Banner>
-            }
+            )}
 
-            {!!config.allowRedeemNow &&
-              <>
-                <ButtonCommon theme={{ backgroundColor: config.theme.primaryColor }}
-                  onClick={() => setPageChange(ContentPage.REDEEM_NOW)}
-                >Redeem it now</ButtonCommon>
-              </>
+            {config.allowRedeemNow && (
+              <ButtonCommon 
+                theme={{ backgroundColor: config.theme.primaryColor }}
+                onClick={() => setPageChange(ContentPage.REDEEM_NOW)}
+              >
+                Redeem it now
+              </ButtonCommon>
+            )}
 
-            }
-
-            <ButtonOutline variant="outline-secondary" onClick={() => setPageChange(ContentPage.REDEEM_LATER_EMAIL)}>Email reward</ButtonOutline>
-            <ButtonOutline variant="outline-secondary" onClick={() => setPageChange(ContentPage.REDEEM_LATER_SMS)}>Text reward</ButtonOutline>
+            <ButtonOutline 
+              variant="outline-secondary" 
+              onClick={() => setPageChange(ContentPage.REDEEM_LATER_EMAIL)}
+            >
+              Email reward
+            </ButtonOutline>
+            <ButtonOutline 
+              variant="outline-secondary" 
+              onClick={() => setPageChange(ContentPage.REDEEM_LATER_SMS)}
+            >
+              Text reward
+            </ButtonOutline>
           </div>
         </Body>
       </div>
     </>
-  )
+  );
 };

@@ -44,32 +44,49 @@ export const PageRedeemLaterInput: React.FC<IProps> = ({
 
   const [pageChange, setPageChange] = useState<ContentPage>();
   const [isPageLoaded, setIsPageLoaded] = useState<boolean>();
-  const [inputValue, setInputValue] = useState<string>("");
+  const [inputValue, setInputValue] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isPageLoaded && pageRef.current) {
       setIsPageLoaded(true);
-      TweenMax.to(pageRef.current, 0.6, { x: 0, autoAlpha: 1, delay });
+      const tween = TweenMax.to(pageRef.current, 0.6, { x: 0, autoAlpha: 1, delay });
+      
+      return () => {
+        if (tween) {
+          tween.kill();
+        }
+      };
     }
   }, [isPageLoaded, delay]);
 
-  const onSubmit = (): void => {
-    if (type === RedeemLaterType.EMAIL && !validator.isEmail(inputValue)) {
-      window.alert('Please enter a valid email address');
-      return;
-    }
+  const handleSubmit = (): void => {
+    setErrorMessage('');
     
-    if (type === RedeemLaterType.SMS && !validator.isMobilePhone(inputValue)) {
-      window.alert('Please enter a valid phone number');
+    if (!inputValue.trim()) {
+      const fieldName = type === RedeemLaterType.EMAIL ? 'email address' : 'phone number';
+      setErrorMessage(`Please enter your ${fieldName}`);
       return;
     }
 
+    if (type === RedeemLaterType.EMAIL && !validator.isEmail(inputValue)) {
+      setErrorMessage('Please enter a valid email address');
+      return;
+    }
+    
+    if (type === RedeemLaterType.SMS && !validator.isMobilePhone(inputValue, 'any', { strictMode: false })) {
+      setErrorMessage('Please enter a valid phone number');
+      return;
+    }
+
+    setIsSubmitting(true);
     const typeKey = type === RedeemLaterType.EMAIL ? 'email' : 'phoneNumber';
 
     campaignImpressionRedeemLaterMutation({ 
       variables: { 
         campaignImpressionId, 
-        [typeKey]: inputValue 
+        [typeKey]: inputValue.trim()
       } 
     })
       .then(() => {
@@ -78,9 +95,15 @@ export const PageRedeemLaterInput: React.FC<IProps> = ({
       .catch((err: Error) => {
         // eslint-disable-next-line no-console
         console.error('Error redeeming later:', err);
-        // Still navigate to confirmation page even on error
-        setPageChange(ContentPage.REDEEM_LATER_CONFIRMATION);
+        setErrorMessage('Failed to save your information. Please try again.');
+        setIsSubmitting(false);
       });
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter' && !isSubmitting) {
+      handleSubmit();
+    }
   };
 
   const getNoun = (): string => {
@@ -112,19 +135,48 @@ export const PageRedeemLaterInput: React.FC<IProps> = ({
           <Caption theme={{ margin: '0 0 16.4px' }}>{formatExpiryCaption(undefined)}</Caption>
           <SubTitle theme={{ margin: '0 0 27.35px' }}>Enter your {getNoun()}</SubTitle>
 
-          <InputStyled type="text"
+          <InputStyled 
+            type={type === RedeemLaterType.EMAIL ? 'email' : 'tel'}
             placeholder={`Your ${getNoun()}`}
             theme={{ margin: '0 auto 39.71px' }}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              setErrorMessage('');
+            }}
+            onKeyPress={handleKeyPress}
             value={inputValue}
+            aria-label={`Enter your ${getNoun()}`}
+            aria-invalid={!!errorMessage}
+            aria-describedby={errorMessage ? 'input-error' : undefined}
+            disabled={isSubmitting}
           />
+          
+          {errorMessage && (
+            <div 
+              id="input-error" 
+              role="alert" 
+              style={{ 
+                color: '#dc3545', 
+                fontSize: '14px', 
+                marginBottom: '10px',
+                textAlign: 'center' 
+              }}
+            >
+              {errorMessage}
+            </div>
+          )}
 
-          <ButtonCommon theme={{ backgroundColor: config.theme.primaryColor }}
-            onClick={onSubmit}
-          >Accept</ButtonCommon>
+          <ButtonCommon 
+            theme={{ backgroundColor: config.theme.primaryColor }}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+          >
+            {isSubmitting ? 'Saving...' : 'Accept'}
+          </ButtonCommon>
           <ButtonLink variant="link" onClick={() => setPageChange(ContentPage.REWARD_DISPLAY)}>Back</ButtonLink>
         </Body>
       </WrapperAnimationIn>
     </>
-  )
+  );
 };
