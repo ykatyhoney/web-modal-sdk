@@ -4,6 +4,8 @@ import { PageRewardDisplay } from './pageRewardDisplay';
 import { ContentPage, IConfig, IConfigWithAnswer, ILuckyConfig, ModalAnswer, ModalReward, RedeemLaterType } from '../../shared/constants';
 import { PageRedeemLaterInput } from './pageRedeemLaterInput';
 import { PageRedeemLaterConfirmation } from './pageRedeemLaterConfirmation';
+// Note: TweenMax is a GSAP 2 API but still works in GSAP 3
+// Consider migrating to gsap.to() for future GSAP 4 compatibility
 import { Back, TweenMax } from 'gsap';
 import classNames from 'classnames';
 import { PageQuestion } from './pageQuestion';
@@ -16,7 +18,7 @@ interface IProps {
 }
 
 export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
-  const bgColor = !!config.darkMode ? 'black' : 'white';
+  const bgColor = config.darkMode ? 'black' : 'white';
   const contentRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState<ContentPage>(ContentPage.REWARD_DISPLAY);
   const [selectedAnswer, setSelectedAnswer] = useState<ModalAnswer>();
@@ -24,19 +26,20 @@ export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
 
   const [campaignImpressionSelectionMutation] = useCampaignImpressionSelectionMutation();
 
-
-
   useEffect(() => {
-    TweenMax.to(
-      contentRef.current || {},
-      0.5,
-      {
-        scale: 1,
-        backgroundColor: bgColor,
-        autoAlpha: 1,
-        ease: Back.easeOut
-      });
-  });
+    if (contentRef.current) {
+      TweenMax.to(
+        contentRef.current,
+        0.5,
+        {
+          scale: 1,
+          backgroundColor: bgColor,
+          autoAlpha: 1,
+          ease: Back.easeOut
+        }
+      );
+    }
+  }, [bgColor]);
 
   const { campaignImpressionRequest: { branding, campaign, campaignAnswers, campaignImpression } } = data;
 
@@ -50,20 +53,30 @@ export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
     answers: campaignAnswers
   };
 
-  const selectAnswer = (answer: ModalAnswer) => {
+  const selectAnswer = (answer: ModalAnswer): void => {
     setSelectedAnswer(answer);
-    campaignImpressionSelectionMutation({ variables: { campaignImpressionId: campaignImpression.id, campaignAnswerId: answer.id } }).then(({ data: rewardData }) => {
-      if (rewardData === undefined) {
-        console.error("No data from reward mutation");
-        config.onFinish?.(false);
-      }
-
-      setReward(rewardData?.campaignImpressionSelection.campaignImpressionReward);
-    }).catch(err => {
-      console.error(err);
-      config.onFinish?.(false);
+    campaignImpressionSelectionMutation({ 
+      variables: { 
+        campaignImpressionId: campaignImpression.id, 
+        campaignAnswerId: answer.id 
+      } 
     })
-  }
+      .then(({ data: rewardData }) => {
+        if (!rewardData?.campaignImpressionSelection?.campaignImpressionReward) {
+          // eslint-disable-next-line no-console
+          console.error('No reward data received from mutation');
+          config.onFinish?.(false);
+          return;
+        }
+
+        setReward(rewardData.campaignImpressionSelection.campaignImpressionReward);
+      })
+      .catch((err: Error) => {
+        // eslint-disable-next-line no-console
+        console.error('Error selecting answer:', err);
+        config.onFinish?.(false);
+      });
+  };
 
   const renderCurrentPage = () => {
     if (!selectedAnswer || !reward) {
@@ -123,13 +136,22 @@ export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
   }
 
   return (
-    <Content ref={contentRef} className={classNames({ 'dark': !!config.darkMode })} style={{ fontFamily: 'Poppins, Nunito, -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"' }} >
-      <link href="https://fonts.googleapis.com/css?family=Poppins:400;500;600" rel="stylesheet"></link>
+    <Content 
+      ref={contentRef} 
+      className={classNames({ 'dark': config.darkMode })} 
+      style={{ 
+        fontFamily: 'Poppins, Nunito, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"' 
+      }}
+    >
+      <link href="https://fonts.googleapis.com/css?family=Poppins:400;500;600" rel="stylesheet" />
       {renderCurrentPage()}
       <BottomLogo>
-        <span >Partnering with</span>
-        <img src={`https://s3.us-east-2.amazonaws.com/www.luckymobility.com/images/lucky-${!!config.darkMode ? 'white' : 'black'}.png`} alt="Logo"></img>
+        <span>Partnering with</span>
+        <img 
+          src={`https://s3.us-east-2.amazonaws.com/www.luckymobility.com/images/lucky-${config.darkMode ? 'white' : 'black'}.png`} 
+          alt="Lucky Labs logo" 
+        />
       </BottomLogo>
-    </Content >
-  )
+    </Content>
+  );
 };

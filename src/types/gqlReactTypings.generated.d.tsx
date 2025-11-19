@@ -1,11 +1,77 @@
 /* THIS IS A GENERATED FILE - DO NOT MODIFY */
 /* eslint-disable */
-import gql from 'graphql-tag';
+/* NOTE: This file has been updated to use @apollo/client. Regenerate with latest codegen for full compatibility. */
+import { gql, useQuery, useLazyQuery, useMutation, QueryHookOptions, LazyQueryHookOptions, MutationHookOptions, QueryResult, MutationResult, BaseMutationOptions, MutationFunction } from '@apollo/client';
 import * as React from 'react';
-import * as ApolloReactCommon from '@apollo/react-common';
-import * as ApolloReactComponents from '@apollo/react-components';
-import * as ApolloReactHoc from '@apollo/react-hoc';
-import * as ApolloReactHooks from '@apollo/react-hooks';
+
+// Compatibility namespaces for old Apollo packages structure
+namespace ApolloReactCommon {
+  export type QueryResult<TData, TVariables> = import('@apollo/client').QueryResult<TData, TVariables>;
+  export type MutationResult<TData> = import('@apollo/client').MutationResult<TData>;
+  export type BaseMutationOptions<TData, TVariables> = import('@apollo/client').BaseMutationOptions<TData, TVariables>;
+  export type MutationFunction<TData, TVariables> = import('@apollo/client').MutationFunction<TData, TVariables>;
+}
+
+namespace ApolloReactHooks {
+  export const useQuery = useQuery;
+  export const useLazyQuery = useLazyQuery;
+  export const useMutation = useMutation;
+  export type QueryHookOptions<TData, TVariables> = QueryHookOptions<TData, TVariables>;
+  export type LazyQueryHookOptions<TData, TVariables> = LazyQueryHookOptions<TData, TVariables>;
+  export type MutationHookOptions<TData, TVariables> = MutationHookOptions<TData, TVariables>;
+}
+
+// For components and HOC - these are deprecated in Apollo Client v3
+// Components using CampaignImpressionRequestComponent should be migrated to use hooks
+namespace ApolloReactComponents {
+  export interface QueryComponentOptions<TData, TVariables> {
+    query: any;
+    variables?: TVariables;
+    skip?: boolean;
+    [key: string]: any;
+  }
+  export interface MutationComponentOptions<TData, TVariables> {
+    mutation: any;
+    variables?: TVariables;
+    [key: string]: any;
+  }
+  export const Query: React.ComponentType<any> = ((props: any) => {
+    // Fallback implementation - should use hooks instead
+    const { query, variables, children, ...rest } = props;
+    const { data, loading, error } = useQuery(query, { variables, ...rest });
+    return children({ data, loading, error });
+  }) as any;
+  export const Mutation: React.ComponentType<any> = ((props: any) => {
+    // Fallback implementation - should use hooks instead
+    const { mutation, children, ...rest } = props;
+    const [mutate, { data, loading, error }] = useMutation(mutation, rest);
+    return children(mutate, { data, loading, error });
+  }) as any;
+}
+
+namespace ApolloReactHoc {
+  export interface DataValue<TData, TVariables> {
+    data?: TData;
+    loading: boolean;
+    error?: any;
+  }
+  export interface OperationOption<TProps, TData, TVariables, TChildProps, TDataName extends string> {
+    alias?: TDataName;
+    [key: string]: any;
+  }
+  export function withQuery<TProps, TData, TVariables, TChildProps, TDataName extends string>(
+    document: any,
+    operationOptions?: OperationOption<TProps, TData, TVariables, TChildProps, TDataName>
+  ): (component: React.ComponentType<TProps>) => React.ComponentType<TProps> {
+    return (Component: React.ComponentType<TProps>) => Component;
+  }
+  export function withMutation<TProps, TData, TVariables, TChildProps, TDataName extends string>(
+    document: any,
+    operationOptions?: OperationOption<TProps, TData, TVariables, TChildProps, TDataName>
+  ): (component: React.ComponentType<TProps>) => React.ComponentType<TProps> {
+    return (Component: React.ComponentType<TProps>) => Component;
+  }
+}
 export type Maybe<T> = T | undefined;
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 

@@ -1,8 +1,6 @@
 import { CampaignAnswer, CampaignImpressionReward } from 'types/gqlReactTypings.generated.d';
 
-export const BootstrapBGColors = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-danger'];
-
-export const test = 'test';
+export const BootstrapBGColors = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-danger'] as const;
 
 export interface ILuckyConfig {
   momentId?: string;
@@ -32,7 +30,8 @@ export enum ContentPage {
 }
 
 export enum RedeemLaterType {
-  EMAIL, SMS
+  EMAIL,
+  SMS
 }
 
 interface ITheme {
@@ -46,8 +45,8 @@ interface ILocation {
   locationFriendlyName?: string;
 }
 
-export type ModalAnswer = Pick<CampaignAnswer, 'answer' | 'id'>
-export type ModalReward = Pick<CampaignImpressionReward, 'reward' | 'rewardCode' | 'rewardExpiryDate'>
+export type ModalAnswer = Pick<CampaignAnswer, 'answer' | 'id'>;
+export type ModalReward = Pick<CampaignImpressionReward, 'reward' | 'rewardCode' | 'rewardExpiryDate'>;
 
 export interface IConfig {
   logo: string;
@@ -59,13 +58,18 @@ export interface IConfig {
   showMap?: boolean;
 }
 
-
 export interface IConfigWithAnswer extends IConfig {
   selectedAnswer: ModalAnswer;
   reward: ModalReward;
 }
 
-export const isDevEnvironment = () => {
-  console.log(window.location.href);
-  return window.location.href.toLowerCase().includes("localhost");
-}
+/**
+ * Checks if the application is running in a development environment.
+ * @returns true if running on localhost, false otherwise
+ */
+export const isDevEnvironment = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  return window.location.href.toLowerCase().includes('localhost');
+};

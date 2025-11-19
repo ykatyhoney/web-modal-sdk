@@ -1,5 +1,5 @@
 
-import { gql } from 'apollo-boost';
+import { gql } from '@apollo/client';
 gql`
   query CampaignImpressionRequest($request: CampaignImpressionRequest!, $campaignId: String) {
     campaignImpressionRequest(request: $request, campaignId: $campaignId) {
