@@ -19,6 +19,7 @@ interface IProps {
   delay?: number;
   setPage: React.Dispatch<React.SetStateAction<ContentPage>>;
   setSelectedAnswer: (answer: ModalAnswer) => void;
+  isLoading?: boolean;
 }
 
 export const PageQuestion: React.FC<IProps> = ({
@@ -27,7 +28,8 @@ export const PageQuestion: React.FC<IProps> = ({
   delay = 0,
   setPage,
   config,
-  setSelectedAnswer
+  setSelectedAnswer,
+  isLoading = false
 }: IProps) => {
 
   const pageRef = useRef<HTMLDivElement>(null);
@@ -43,15 +45,27 @@ export const PageQuestion: React.FC<IProps> = ({
   useEffect(() => {
     if (!isPageLoaded && pageRef.current) {
       setIsPageLoaded(true);
-      TweenMax.to(pageRef.current, 0.6, { autoAlpha: 1, delay });
+      const tween = TweenMax.to(pageRef.current, 0.6, { autoAlpha: 1, delay });
+      
+      return () => {
+        if (tween) {
+          tween.kill();
+        }
+      };
     }
   }, [isPageLoaded, delay]);
 
-  const answers = config.answers.map((answerItem, index) => {
+  const answers = config.answers.map((answerItem) => {
     return (
-      <ButtonOutline variant="outline-secondary" onClick={selectAnswer(answerItem)} key={index}>{answerItem.answer}</ButtonOutline>
+      <ButtonOutline 
+        variant="outline-secondary" 
+        onClick={selectAnswer(answerItem)} 
+        key={answerItem.id}
+      >
+        {answerItem.answer}
+      </ButtonOutline>
     );
-  })
+  });
 
   return (
     <>
@@ -70,9 +84,15 @@ export const PageQuestion: React.FC<IProps> = ({
         <Body>
           <Title theme={{ margin: '0 0 3.22px', color: config.theme.primaryColor }}>{config.question}</Title>
 
-          {answers}
+          {isLoading && (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <span>Processing...</span>
+            </div>
+          )}
+          
+          {!isLoading && answers}
         </Body>
       </WrapperAnimationIn>
     </>
-  )
+  );
 };

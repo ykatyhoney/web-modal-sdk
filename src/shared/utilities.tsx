@@ -28,10 +28,15 @@ export const checkIsTablet = () => window.matchMedia('(min-width: 768px) and (ma
 
 export const checkIsDesktop = () => window.matchMedia('(min-width: 992px)').matches;
 
+/**
+ * Formats the expiry caption for rewards.
+ * @param expiryDate - Optional expiry date
+ * @returns Formatted expiry caption string
+ */
 export const formatExpiryCaption = (expiryDate?: Date): string => {
   if (!expiryDate) {
-    return "";
+    return '';
   }
 
   return 'Valid for the next 12 hours';
-}
+};

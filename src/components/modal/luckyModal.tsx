@@ -7,6 +7,7 @@ import { ApolloProvider, ApolloClient, NormalizedCacheObject } from '@apollo/cli
 import { createApolloClient } from '../../shared/gqlClient';
 import { ModalContent } from '../../components/modal-content/modalContent';
 import { CampaignImpressionRequestComponent } from '../../types/gqlReactTypings.generated.d';
+import { ErrorBoundary } from '../shared-components/ErrorBoundary';
 
 interface IProps {
   apiKey: string;
@@ -123,10 +124,12 @@ export const LuckyModal: React.FC<IProps> = ({
                 </CloseBtn>
                 {headerContent && <Modal.Header>{headerContent}</Modal.Header>}
                 <Modal.Body>
-                  <ModalContent
-                    config={config}
-                    data={data}
-                  />
+                  <ErrorBoundary>
+                    <ModalContent
+                      config={config}
+                      data={data}
+                    />
+                  </ErrorBoundary>
                 </Modal.Body>
                 {footerContent && <Modal.Footer>{footerContent}</Modal.Footer>}
               </ModalStyled>

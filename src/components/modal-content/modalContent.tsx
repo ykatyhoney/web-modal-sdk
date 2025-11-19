@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { Content, BottomLogo } from './modalContentStyles';
 import { PageRewardDisplay } from './pageRewardDisplay';
 import { ContentPage, IConfig, IConfigWithAnswer, ILuckyConfig, ModalAnswer, ModalReward, RedeemLaterType } from '../../shared/constants';
@@ -23,12 +23,14 @@ export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
   const [page, setPage] = useState<ContentPage>(ContentPage.REWARD_DISPLAY);
   const [selectedAnswer, setSelectedAnswer] = useState<ModalAnswer>();
   const [reward, setReward] = useState<ModalReward>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const [campaignImpressionSelectionMutation] = useCampaignImpressionSelectionMutation();
 
   useEffect(() => {
     if (contentRef.current) {
-      TweenMax.to(
+      const tween = TweenMax.to(
         contentRef.current,
         0.5,
         {
@@ -38,23 +40,32 @@ export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
           ease: Back.easeOut
         }
       );
+      
+      return () => {
+        if (tween) {
+          tween.kill();
+        }
+      };
     }
   }, [bgColor]);
 
   const { campaignImpressionRequest: { branding, campaign, campaignAnswers, campaignImpression } } = data;
 
 
-  const brandConfig: IConfig = {
+  const brandConfig: IConfig = useMemo(() => ({
     logo: branding.imageUrl,
     theme: {
       primaryColor: branding.primaryColorHex
     },
     question: campaign.question,
     answers: campaignAnswers
-  };
+  }), [branding.imageUrl, branding.primaryColorHex, campaign.question, campaignAnswers]);
 
-  const selectAnswer = (answer: ModalAnswer): void => {
+  const selectAnswer = useCallback((answer: ModalAnswer): void => {
     setSelectedAnswer(answer);
+    setError('');
+    setIsLoading(true);
+    
     campaignImpressionSelectionMutation({ 
       variables: { 
         campaignImpressionId: campaignImpression.id, 
@@ -63,29 +74,53 @@ export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
     })
       .then(({ data: rewardData }) => {
         if (!rewardData?.campaignImpressionSelection?.campaignImpressionReward) {
+          const errorMsg = 'No reward data received. Please try again.';
+          setError(errorMsg);
+          setIsLoading(false);
           // eslint-disable-next-line no-console
           console.error('No reward data received from mutation');
-          config.onFinish?.(false);
           return;
         }
 
         setReward(rewardData.campaignImpressionSelection.campaignImpressionReward);
+        setIsLoading(false);
       })
       .catch((err: Error) => {
+        const errorMsg = 'Failed to process your answer. Please try again.';
+        setError(errorMsg);
+        setIsLoading(false);
         // eslint-disable-next-line no-console
         console.error('Error selecting answer:', err);
-        config.onFinish?.(false);
       });
-  };
+  }, [campaignImpression.id, campaignImpressionSelectionMutation]);
 
-  const renderCurrentPage = () => {
+  const renderCurrentPage = (): React.ReactElement => {
     if (!selectedAnswer || !reward) {
       return (
-        <PageQuestion setPage={setPage} bgColor={bgColor}
-          config={brandConfig}
-          setSelectedAnswer={selectAnswer}
-        />
-      )
+        <>
+          {error && (
+            <div 
+              role="alert" 
+              style={{ 
+                color: '#dc3545', 
+                padding: '10px', 
+                marginBottom: '10px',
+                textAlign: 'center',
+                backgroundColor: bgColor === 'black' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
+              }}
+            >
+              {error}
+            </div>
+          )}
+          <PageQuestion 
+            setPage={setPage} 
+            bgColor={bgColor}
+            config={brandConfig}
+            setSelectedAnswer={selectAnswer}
+            isLoading={isLoading}
+          />
+        </>
+      );
     }
 
     const configWithAnswer: IConfigWithAnswer = {
@@ -102,11 +137,13 @@ export const ModalContent: React.FC<IProps> = ({ config, data }: IProps) => {
         );
       case ContentPage.REDEEM_NOW:
         return (
-          <PageRedeemNow setPage={setPage} bgColor={bgColor}
+          <PageRedeemNow 
+            setPage={setPage} 
+            bgColor={bgColor}
             config={configWithAnswer}
             onFinish={() => config.onFinish?.(true)}
           />
-        )
+        );
       case ContentPage.REDEEM_LATER_EMAIL:
         return (
           <PageRedeemLaterInput setPage={setPage} bgColor={bgColor}
