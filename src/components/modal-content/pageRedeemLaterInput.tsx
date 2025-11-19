@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+// Note: TweenMax is a GSAP 2 API but still works in GSAP 3
+// Consider migrating to gsap.to() for future GSAP 4 compatibility
 import { TweenMax } from 'gsap';
 import {
   Body,
@@ -45,44 +47,65 @@ export const PageRedeemLaterInput: React.FC<IProps> = ({
   const [inputValue, setInputValue] = useState<string>("");
 
   useEffect(() => {
-    if (!isPageLoaded) {
+    if (!isPageLoaded && pageRef.current) {
       setIsPageLoaded(true);
-      TweenMax.to(pageRef.current || {}, 0.6, { x: 0, autoAlpha: 1, delay });
+      TweenMax.to(pageRef.current, 0.6, { x: 0, autoAlpha: 1, delay });
     }
   }, [isPageLoaded, delay]);
 
-  const onSubmit = () => {
+  const onSubmit = (): void => {
     if (type === RedeemLaterType.EMAIL && !validator.isEmail(inputValue)) {
-      return window.alert("Please enter a valid email");
-    } else if (type === RedeemLaterType.SMS && !validator.isMobilePhone(inputValue)) {
-      return window.alert("Please enter a valid phone number");
+      window.alert('Please enter a valid email address');
+      return;
+    }
+    
+    if (type === RedeemLaterType.SMS && !validator.isMobilePhone(inputValue)) {
+      window.alert('Please enter a valid phone number');
+      return;
     }
 
     const typeKey = type === RedeemLaterType.EMAIL ? 'email' : 'phoneNumber';
 
-    campaignImpressionRedeemLaterMutation({ variables: { campaignImpressionId, [typeKey]: inputValue } }).then(() => {
-      setPageChange(ContentPage.REDEEM_LATER_CONFIRMATION);
-    }).catch(err => {
-      console.error(err);
-      setPageChange(ContentPage.REDEEM_LATER_CONFIRMATION);
+    campaignImpressionRedeemLaterMutation({ 
+      variables: { 
+        campaignImpressionId, 
+        [typeKey]: inputValue 
+      } 
     })
-  }
+      .then(() => {
+        setPageChange(ContentPage.REDEEM_LATER_CONFIRMATION);
+      })
+      .catch((err: Error) => {
+        // eslint-disable-next-line no-console
+        console.error('Error redeeming later:', err);
+        // Still navigate to confirmation page even on error
+        setPageChange(ContentPage.REDEEM_LATER_CONFIRMATION);
+      });
+  };
 
-  const getNoun = () => {
+  const getNoun = (): string => {
     switch (type) {
       case RedeemLaterType.EMAIL:
         return 'email';
       case RedeemLaterType.SMS:
         return 'phone number';
+      default:
+        return 'contact information';
     }
-  }
+  };
 
   return (
     <>
-      {!!pageChange && <AnimationPageChange bgColor={bgColor} duration={changePageDuration} callback={() => setPage(pageChange)} />}
+      {pageChange !== undefined && (
+        <AnimationPageChange 
+          bgColor={bgColor} 
+          duration={changePageDuration} 
+          callback={() => setPage(pageChange)} 
+        />
+      )}
       <WrapperAnimationIn ref={pageRef} className="page-content" theme={{ transform: '-100px,0,0' }}>
         <Header>
-          <img src={config.logo} alt="logo" />
+          <img src={config.logo} alt="Brand logo" />
         </Header>
         <Body>
           <Title theme={{ margin: '0 0 3.22px', color: config.theme.primaryColor }}>{config.reward.reward}</Title>

@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  mode: 'production',
   entry: './src/luckyWebSdk.tsx',
   module: {
     rules: [
@@ -10,12 +11,8 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
-        test: /\.(png|jpe?g|gif)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-          },
-        ],
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: 'asset/resource',
       },
       {
         test: /\.css$/i,
@@ -24,12 +21,19 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js', '.jsx'],
   },
   output: {
     filename: 'lucky-web-sdk.js',
     path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'var',
-    library: 'luckySdk',
+    library: {
+      name: 'luckySdk',
+      type: 'var',
+    },
+    clean: true,
+  },
+  externals: {
+    'react': 'React',
+    'react-dom': 'ReactDOM',
   },
 };

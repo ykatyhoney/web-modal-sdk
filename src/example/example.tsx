@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Container } from 'react-bootstrap'
-import { showLuckyModal } from 'luckyWebSdk';
+import { Button, Container } from 'react-bootstrap';
+import { showLuckyModal } from '../luckyWebSdk';
 
 export const Example: React.FC = () => {
 
