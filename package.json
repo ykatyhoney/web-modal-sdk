@@ -1,8 +1,31 @@
 {
   "name": "lucky-web-sdk",
   "version": "1.0.0",
-  "description": "",
+  "description": "A React-based modal SDK for displaying interactive reward campaigns with QR codes, email/SMS redemption, and customizable themes",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "react",
+    "modal",
+    "sdk",
+    "rewards",
+    "campaign",
+    "qrcode",
+    "typescript",
+    "graphql"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/web-modal-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/web-modal-sdk/issues"
+  },
+  "homepage": "https://github.com/your-username/web-modal-sdk#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
@@ -15,14 +38,13 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/client": "^3.11.7",
-    "@types/qrcode.react": "^3.1.0",
     "bootstrap": "^5.3.3",
     "classnames": "^2.5.1",
     "graphql": "^16.9.0",
     "gsap": "^3.13.0",
     "lodash": "^4.17.21",
     "polished": "^4.3.1",
-    "qrcode.react": "^3.1.0",
+    "qrcode.react": "^4.0.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.4",
     "react-datepicker": "^7.3.0",
